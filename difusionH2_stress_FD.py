@@ -56,31 +56,32 @@ Hflux[:,0]=0
 
 # modelo de difusion y matrices para ambos problemas
 for i in range(1,n-1):
-    A[i,i]=-2*S*D/dr**2+S*D/(r[i]*dr)-1/dt
-    A[i,i+1]=S*D/dr**2
-    A[i,i-1]=S*D/dr**2-S*D/(r[i]*dr)
-    ADisp[i,i+1]=1/dr**2
-    ADisp[i,i-1]=1/dr**2-1/(r[i]*dr)
-    ADisp[i,i]=-2/dr**2+1/(r[i]*dr)-1./r[i]**2
+    A[i,i]=-2*S*D/dr**2-1/dt
+    A[i,i+1]=S*D/dr**2+S*D/(2*r[i]*dr)
+    A[i,i-1]=S*D/dr**2-S*D/(2*r[i]*dr)
+    ADisp[i,i+1]=1/dr**2+1/(2*r[i]*dr)
+    ADisp[i,i-1]=1/dr**2-1/(2*r[i]*dr)
+    ADisp[i,i]=-2/dr**2-1./r[i]**2
 A[0,0]=1 
 A[n-1,n-1]=1
-ADisp[0,0]=-(nu-1.)/dr-nu/r[0]
-ADisp[0,1]=(nu-1.)/dr
-ADisp[n-1,n-2]=-(nu-1.)/dr
-ADisp[n-1,n-1]=(nu-1.)/dr-nu/r[n-1]
+ADisp[0,0]=-3*(nu-1.)/(2*dr)-nu/r[0]
+ADisp[0,1]=4*(nu-1.)/(2*dr)
+ADisp[0,2]=-(nu-1.)/(2*dr)
+ADisp[n-1,n-3]=(nu-1.)/(2*dr)
+ADisp[n-1,n-2]=-4*(nu-1.)/(2*dr)
+ADisp[n-1,n-1]=3*(nu-1.)/(2*dr)-nu/r[n-1]
 
 
 for j in range(nt):
     for i in range(1,n-1):
         rhs[i]=-Cold[i]/dt
-        rhsDisp[i]=-(1.0/3.0)*(Omega/(nu-1.0))*(C[i]-C[i-1])/dr
     rhs[0]=Cin
     rhs[n-1]=Cout
     C=np.linalg.solve(A,rhs)
     for i in range(1,n-1): # post processing de flujos
-        Cflux[i]=-2.0*np.pi*r[i]*D*(C[i]-C[i-1])/dr
-    Cflux[0]=-2.0*np.pi*r[0]*D*(C[1]-C[0])/dr  
-    Cflux[n-1]=-2.0*np.pi*r[n-1]*D*(C[n-1]-C[n-2])/dr
+        Cflux[i]=-2.0*np.pi*r[i]*D*(C[i+1]-C[i-1])/(2*dr)
+    Cflux[0]=-2.0*np.pi*r[0]*D*(-3*C[0]+4*C[1]-C[2])/(2*dr)  
+    Cflux[n-1]=-2.0*np.pi*r[n-1]*D*(3*C[n-1]-4*C[n-2]+C[n-3])/(2*dr)
     H[:,j+1]=C
     Hflux[:,j+1]=Cflux
     Cold[:]=C
@@ -95,7 +96,7 @@ for i in range(nt):
 for j in range(nt+1):
     C[:]=H[:,j]
     for i in range(1,n-1):
-        rhsDisp[i]=-(1.0/3.0)*(Omega/(nu-1.0))*(C[i]-C[i-1])/dr
+        rhsDisp[i]=-(1.0/3.0)*(Omega/(nu-1.0))*(C[i+1]-C[i-1])/(2*dr)
     rhsDisp[0]=-pin*(1.+nu)*(2*nu-1.)/E-(1./3.)*Omega*C[0]
     rhsDisp[n-1]=-(1./3.)*Omega*C[n-1]
     Disp=np.linalg.solve(ADisp,rhsDisp)
@@ -104,11 +105,11 @@ for j in range(nt+1):
     epsi_t=Disp/r
     for i in range(n):
         if i>0 and i<n-1:
-            epsi_r[i]=(Disp[i]-Disp[i-1])/dr
+            epsi_r[i]=(Disp[i+1]-Disp[i-1])/(2*dr)
         if i==0:
             epsi_r[i]=(-3*Disp[i]+4*Disp[i+1]-Disp[i+2] )/(2*dr)
         if i==n-1:    
-            epsi_r[i]=(Disp[i]-Disp[i-1] )/dr
+            epsi_r[i]=(3*Disp[i]-4*Disp[i-1]+Disp[i-2] )/(2*dr)
         sigma_r[i]=(E/((1.+nu)*(2.*nu-1.)))*\
         ((nu-1.)*epsi_r[i]-nu*epsi_t[i]+(1./3.)*Omega*C[i])
         sigma_t[i]=(E/((1.+nu)*(2.*nu-1.)))*\
