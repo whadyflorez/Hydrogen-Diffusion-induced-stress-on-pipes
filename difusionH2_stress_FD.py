@@ -24,7 +24,7 @@ dr=(Ro-Ri)/(n-1)
 S=31536000 # seconds in a year
 t_end=100.0
 #nt=int(t_end/dt)
-nt=300
+nt=600
 dt=t_end/(nt-1)
 
 
@@ -96,7 +96,7 @@ for i in range(nt):
 for j in range(nt+1):
     C[:]=H[:,j]
     for i in range(1,n-1):
-        rhsDisp[i]=-(1.0/3.0)*(Omega/(nu-1.0))*(C[i+1]-C[i-1])/(2*dr)
+        rhsDisp[i]=-(1.0/3.0)*(Omega/(nu-1.0))*(C[i+1]-C[i-1])/(2.*dr)
     rhsDisp[0]=-pin*(1.+nu)*(2*nu-1.)/E-(1./3.)*Omega*C[0]
     rhsDisp[n-1]=-(1./3.)*Omega*C[n-1]
     Disp=np.linalg.solve(ADisp,rhsDisp)
@@ -123,7 +123,7 @@ for j in range(nt+1):
     
 #grafica Concentracion vs r para cada tiempo    
 plt.figure()
-for i in range(0,nt+1,20):
+for i in range(0,nt+1,1):
     plt.plot(r*1e3,H[:,i],label=f't={i*dt:.1f} years') 
 plt.xlabel('r [mm]')
 plt.ylabel('C') 
@@ -163,7 +163,7 @@ plt.legend(loc='upper left', bbox_to_anchor=(1, 1))
 
 #grafica sigma_r vs radio para cada tiempo
 plt.figure()
-for i in range(0,nt+1,20):
+for i in range(0,nt+1,1):
     plt.plot(r*1e3,HStress_r[:,i],label=f't={i*dt:.1f} years') 
 plt.xlabel('r [mm]')
 plt.ylabel('$\sigma_r$ [Pa]') 
@@ -171,7 +171,7 @@ plt.legend(loc='upper left', bbox_to_anchor=(1, 1))
 
 #grafica sigma_t vs radio para cada tiempo
 plt.figure()
-for i in range(0,nt+1,20):
+for i in range(0,nt+1,1):
     plt.plot(r*1e3,HStress_t[:,i],label=f't={i*dt:.1f} years') 
 plt.xlabel('r [mm]')
 plt.ylabel(r'$\sigma_\theta$ [Pa]')  
