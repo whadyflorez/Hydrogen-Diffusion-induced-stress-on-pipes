@@ -7,6 +7,7 @@ Diffusion cylinder implicit FD constant diffusivity
 """
 import numpy as np
 import matplotlib.pyplot as plt
+from scipy.linalg import solve_banded
 
 Ro=2.0e-2
 Ri=Ro-3.0e-3
@@ -15,10 +16,10 @@ Cout=0.0
 D=2.2e-15
 E=10e9 #Pa
 nu=0.3
-Omega=2.0
+Omega=1.0e-3
 C0=0.0
-pin=1.1e5*0 #Pa
-n=100 #nodes
+pin=32.0e3 #Pa https://www.ugc.edu.co/pages/juridica/documentos/institucionales/NTC_2505_Instalaciones_Suministro_De_Gas.pdf
+n=4000 #nodes
 dr=(Ro-Ri)/(n-1)
 #dt=0.083
 S=31536000 # seconds in a year
@@ -35,8 +36,8 @@ sigma_r=np.zeros(n)
 sigma_t=np.zeros(n)
 epsi_r=np.zeros(n)
 epsi_t=np.zeros(n)
-A=np.zeros((n,n))
-ADisp=np.zeros((n,n))
+A=np.zeros((3,n))
+ADisp=np.zeros((5,n))
 rhs=np.zeros(n)
 rhsDisp=np.zeros(n)
 r=np.linspace(Ri,Ro,n)
@@ -56,20 +57,20 @@ Hflux[:,0]=0
 
 # modelo de difusion y matrices para ambos problemas
 for i in range(1,n-1):
-    A[i,i]=-2*S*D/dr**2-1/dt
-    A[i,i+1]=S*D/dr**2+S*D/(2*r[i]*dr)
-    A[i,i-1]=S*D/dr**2-S*D/(2*r[i]*dr)
-    ADisp[i,i+1]=1/dr**2+1/(2*r[i]*dr)
-    ADisp[i,i-1]=1/dr**2-1/(2*r[i]*dr)
-    ADisp[i,i]=-2/dr**2-1./r[i]**2
-A[0,0]=1 
-A[n-1,n-1]=1
-ADisp[0,0]=-3*(nu-1.)/(2*dr)-nu/r[0]
-ADisp[0,1]=4*(nu-1.)/(2*dr)
-ADisp[0,2]=-(nu-1.)/(2*dr)
-ADisp[n-1,n-3]=(nu-1.)/(2*dr)
-ADisp[n-1,n-2]=-4*(nu-1.)/(2*dr)
-ADisp[n-1,n-1]=3*(nu-1.)/(2*dr)-nu/r[n-1]
+    A[1+i-i,i]=-2*S*D/dr**2-1/dt
+    A[1+i-(i+1),i+1]=S*D/dr**2+S*D/(2*r[i]*dr)
+    A[1+i-(i-1),i-1]=S*D/dr**2-S*D/(2*r[i]*dr)
+    ADisp[2+i-(i+1),i+1]=1/dr**2+1/(2*r[i]*dr)
+    ADisp[2+i-(i-1),i-1]=1/dr**2-1/(2*r[i]*dr)
+    ADisp[2+i-i,i]=-2/dr**2-1./r[i]**2
+A[1+0-0,0]=1 
+A[1+n-1-(n-1),n-1]=1
+ADisp[2+0-0,0]=-3*(nu-1.)/(2*dr)-nu/r[0]
+ADisp[2+0-1,1]=4*(nu-1.)/(2*dr)
+ADisp[2+0-2,2]=-(nu-1.)/(2*dr)
+ADisp[2+n-1-(n-3),n-3]=(nu-1.)/(2*dr)
+ADisp[2+n-1-(n-2),n-2]=-4*(nu-1.)/(2*dr)
+ADisp[2+n-1-(n-1),n-1]=3*(nu-1.)/(2*dr)-nu/r[n-1]
 
 
 for j in range(nt):
@@ -77,7 +78,7 @@ for j in range(nt):
         rhs[i]=-Cold[i]/dt
     rhs[0]=Cin
     rhs[n-1]=Cout
-    C=np.linalg.solve(A,rhs)
+    C=solve_banded((1,1),A,rhs)
     for i in range(1,n-1): # post processing de flujos
         Cflux[i]=-2.0*np.pi*r[i]*D*(C[i+1]-C[i-1])/(2*dr)
     Cflux[0]=-2.0*np.pi*r[0]*D*(-3*C[0]+4*C[1]-C[2])/(2*dr)  
@@ -99,7 +100,7 @@ for j in range(nt+1):
         rhsDisp[i]=-(1.0/3.0)*(Omega/(nu-1.0))*(C[i+1]-C[i-1])/(2.*dr)
     rhsDisp[0]=-pin*(1.+nu)*(2*nu-1.)/E-(1./3.)*Omega*C[0]
     rhsDisp[n-1]=-(1./3.)*Omega*C[n-1]
-    Disp=np.linalg.solve(ADisp,rhsDisp)
+    Disp=solve_banded((2,2),ADisp,rhsDisp)
     HDisp[:,j]=Disp
 #post processing de stress and strain    
     epsi_t=Disp/r
