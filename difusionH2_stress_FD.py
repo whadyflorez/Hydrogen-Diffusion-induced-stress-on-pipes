@@ -16,7 +16,7 @@ Cout=0.0
 D=2.2e-15
 E=10e9 #Pa
 nu=0.3
-Omega=1.0e-3
+Omega=0
 C0=0.0
 pin=32.0e3 #Pa https://www.ugc.edu.co/pages/juridica/documentos/institucionales/NTC_2505_Instalaciones_Suministro_De_Gas.pdf
 n=4000 #nodes
@@ -120,7 +120,6 @@ for j in range(nt+1):
     HStrain_r[:,j]=epsi_r
     HStrain_t[:,j]=epsi_t
  
-
     
 #grafica Concentracion vs r para cada tiempo    
 plt.figure()
