@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 """
 Created on Tue Jul 16 08:19:53 2024
-Diffusion cylinder implicit FD constant diffusivity
+stresses in internal spherical cavity
 @author: whadymacbook2016
 """
 import numpy as np
@@ -19,12 +19,18 @@ nu=0.3
 Omega=5.0e-3
 C0=0.0
 pin=400.0e3 #Pa https://www.ugc.edu.co/pages/juridica/documentos/institucionales/NTC_2505_Instalaciones_Suministro_De_Gas.pdf
+R_cavity=1.0e-4
+r_cavity=0.5*(Ro+Ri) #position of cavity center
+Rg=8.31446261815324 
+T_ref=25.0+273.15 #reference temperature in K
+
+
 n=2000 #nodes
 dr=(Ro-Ri)/(n-1)
 #dt=0.083
 #S=31536000 # seconds in a year
 S=60*60 # seconds per hour
-t_end=5.0
+t_end=100.0
 #nt=int(t_end/dt)
 nt=1000
 dt=t_end/(nt-1)
@@ -51,10 +57,14 @@ HStress_r=np.zeros((n,nt+1))
 HStress_t=np.zeros((n,nt+1))
 HStrain_r=np.zeros((n,nt+1))
 HStrain_t=np.zeros((n,nt+1))
+H_mol_cavity=np.zeros(nt+1)
+H_pressure_cavity=np.zeros(nt+1)
 
 Cold[:]=C0
 H[:,0]=Cold
 Hflux[:,0]=0
+
+index_cavity=np.argmin(np.abs(r-r_cavity)) #the closest index to the value r_cavity in r
 
 # modelo de difusion y matrices para ambos problemas
 for i in range(1,n-1):
@@ -73,7 +83,7 @@ ADisp[2+n-1-(n-3),n-3]=(nu-1.)/(2*dr)
 ADisp[2+n-1-(n-2),n-2]=-4*(nu-1.)/(2*dr)
 ADisp[2+n-1-(n-1),n-1]=3*(nu-1.)/(2*dr)-nu/r[n-1]
 
-
+mol_cavity=0.0
 for j in range(nt):
     for i in range(1,n-1):
         rhs[i]=-Cold[i]/dt
@@ -87,6 +97,11 @@ for j in range(nt):
     H[:,j+1]=C
     Hflux[:,j+1]=Cflux
     Cold[:]=C
+    mol_cavity+=Cflux[index_cavity]*4.0*np.pi*r_cavity**2*S*dt
+    Vol_cavity=(4.0/3.0)*np.pi*r_cavity**3
+    pressure_cavity=mol_cavity*Rg*T_ref/Vol_cavity
+    H_mol_cavity[j+1]=mol_cavity
+    H_pressure_cavity[j+1]=pressure_cavity
 #post processing de flujos totales    
 tot_flux_in=0
 tot_flux_out=0
@@ -195,4 +210,12 @@ for i in range(0,nt+1,20):
 plt.xlabel('r [mm]')
 plt.ylabel(r'$\epsilon_\theta$') 
 plt.legend(loc='upper left', bbox_to_anchor=(1, 1))
+
+#grafica de la presion en la cavidad vs tiempo
+plt.figure()
+plt.plot(t,H_pressure_cavity) 
+plt.xlabel('t ')
+plt.ylabel('p (Pa)') 
+
+
 
