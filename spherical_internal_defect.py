@@ -13,7 +13,7 @@ Ro=2.0e-2
 Ri=Ro-3.0e-3
 Cin=0.1
 Cout=0.0
-D=1.0e-8
+D=1.0e-15
 E=10e9 #Pa
 nu=0.3
 Omega=5.0e-3
@@ -28,9 +28,8 @@ T_ref=25.0+273.15 #reference temperature in K
 n=2000 #nodes
 dr=(Ro-Ri)/(n-1)
 #dt=0.083
-#S=31536000 # seconds in a year
-S=60*60 # seconds per hour
-t_end=100.0
+S=31536000 # seconds in a year
+t_end=50.0
 #nt=int(t_end/dt)
 nt=1000
 dt=t_end/(nt-1)
@@ -59,6 +58,10 @@ HStrain_r=np.zeros((n,nt+1))
 HStrain_t=np.zeros((n,nt+1))
 H_mol_cavity=np.zeros(nt+1)
 H_pressure_cavity=np.zeros(nt+1)
+H_r_cavity=np.zeros(nt+1)
+H_stressr_cavity=np.zeros(nt+1)
+H_strainr_cavity=np.zeros(nt+1)
+
 
 Cold[:]=C0
 H[:,0]=Cold
@@ -84,6 +87,7 @@ ADisp[2+n-1-(n-2),n-2]=-4*(nu-1.)/(2*dr)
 ADisp[2+n-1-(n-1),n-1]=3*(nu-1.)/(2*dr)-nu/r[n-1]
 
 mol_cavity=0.0
+H_r_cavity[0]=R_cavity
 for j in range(nt):
     for i in range(1,n-1):
         rhs[i]=-Cold[i]/dt
@@ -97,11 +101,17 @@ for j in range(nt):
     H[:,j+1]=C
     Hflux[:,j+1]=Cflux
     Cold[:]=C
-    mol_cavity+=Cflux[index_cavity]*4.0*np.pi*r_cavity**2*S*dt
-    Vol_cavity=(4.0/3.0)*np.pi*r_cavity**3
+    mol_cavity+=Cflux[index_cavity]*4.0*np.pi*R_cavity**2*S*dt
+    Vol_cavity=(4.0/3.0)*np.pi*R_cavity**3
     pressure_cavity=mol_cavity*Rg*T_ref/Vol_cavity
+    sigmar_cavity=pressure_cavity
+    deltaR_cavity=R_cavity*pressure_cavity*(1.0+nu)/E
+    R_cavity+=deltaR_cavity
     H_mol_cavity[j+1]=mol_cavity
     H_pressure_cavity[j+1]=pressure_cavity
+    H_r_cavity[j+1]=R_cavity
+    H_stressr_cavity[j+1]=sigmar_cavity
+    
 #post processing de flujos totales    
 tot_flux_in=0
 tot_flux_out=0
@@ -216,6 +226,11 @@ plt.figure()
 plt.plot(t,H_pressure_cavity) 
 plt.xlabel('t ')
 plt.ylabel('p (Pa)') 
+#grafica del radio en la cavidad vs tiempo
+plt.figure()
+plt.plot(t,H_r_cavity*1e3) 
+plt.xlabel('t ')
+plt.ylabel('$r_{cavity}$ (mm)') 
 
 
 
