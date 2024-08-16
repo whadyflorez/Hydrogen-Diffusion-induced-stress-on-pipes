@@ -66,9 +66,15 @@ tot_flux_out=0
 
 for i in range(nt):
     tot_flux_in+=0.5*(Hflux[0,i]+Hflux[0,i+1])*S*dt
-    tot_flux_out+=0.5*(Hflux[n-1,i]+Hflux[n-1,i+1])*S*dt
+    tot_flux_out+=0.5*(Hflux[n-1,i]+Hflux[n-1,i+1])*S*dt    
     tot_acum=tot_flux_in-tot_flux_out
     Table_tot_flux[i,0:3]=[tot_flux_in,tot_flux_out,tot_acum]
+
+#comprobacion de la acumulacion final
+C_acum=0
+for i in range(n-1):
+    C_acum+=0.5*2*np.pi*(r[i]*C[i]+r[i+1]*C[i+1])*dr
+        
     
 
 #concentracions vs radio    
