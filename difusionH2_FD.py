@@ -11,7 +11,6 @@ from scipy.linalg import solve_banded
 
 Ro=2.0e-2
 Ri=Ro-5.0e-3
-Cin=45.7
 Cout=0.0
 D=1.9e-10
 C0=0.0
@@ -21,7 +20,7 @@ dr=(Ro-Ri)/(n-1)
 #S=31536000 # seconds in a year
 #S=3600*24*30 #seconds per month
 S=3600*24 #seconds per day
-t_end=5.0
+t_end=10.0
 #nt=int(t_end/dt)
 nt=300
 dt=t_end/(nt-1)
@@ -38,6 +37,14 @@ Cflux=np.zeros(n)
 Hflux=np.zeros((n,nt+1))
 Table_tot_flux=np.zeros((nt,3))
 
+
+def Cbnd_in(t):
+    if t<=5:
+        y=45.7
+    else:
+        y=45.7*1.25
+    return y
+
 Cold[:]=C0
 H[:,0]=Cold
 Hflux[:,0]=0
@@ -50,6 +57,8 @@ A[1+0-0,0]=1
 A[1+n-1-(n-1),n-1]=1
 
 for j in range(nt):
+    time=j*dt
+    Cin=Cbnd_in(time)
     for i in range(1,n-1):
         rhs[i]=-Cold[i]/dt
     rhs[0]=Cin
