@@ -118,7 +118,7 @@ plt.plot(t[1:],Table_tot_flux[:,1],label=f'outer radius total mass output')
 plt.plot(t[1:],Table_tot_flux[:,2],label=f'Accumulated moles in pipe') 
 plt.xlabel('t [years]')
 plt.ylabel('total mass mol/m') 
-plt.legend(loc='upper right')
+plt.legend(loc='upper right') 
 
 
 
