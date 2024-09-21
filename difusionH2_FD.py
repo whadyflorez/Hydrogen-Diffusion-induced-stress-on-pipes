@@ -129,5 +129,8 @@ plt.xlabel('t [years]')
 plt.ylabel('total mass mol/m') 
 plt.legend(loc='upper right') 
 
+#ejemplo de calculo de perdidas por difusion estacionaria
+Perdidas=Hflux[n-1,-1]*22.4*3600*24*365 #moles por año por metro
+
 
 
