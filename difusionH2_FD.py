@@ -10,16 +10,18 @@ import matplotlib.pyplot as plt
 from scipy.linalg import solve_banded
 
 Ro=2.0e-2
-Ri=Ro-3.0e-3
-Cin=0.1
+Ri=Ro-5.0e-3
+Cin=45.7
 Cout=0.0
-D=2.2e-15
+D=1.9e-10
 C0=0.0
 n=100 #nodes
 dr=(Ro-Ri)/(n-1)
 #dt=0.083
-S=31536000 # seconds in a year
-t_end=100.0
+#S=31536000 # seconds in a year
+#S=3600*24*30 #seconds per month
+S=300*24 #seconds per day
+t_end=10.0
 #nt=int(t_end/dt)
 nt=300
 dt=t_end/(nt-1)
