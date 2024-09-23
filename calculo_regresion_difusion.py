@@ -24,12 +24,16 @@ def f(p):
       E+=(np.log(D[i])-m(T[i],p))**2
     return E  
 
-p_initialize=np.array([0.5,0.5])
+p_initialize=np.array([-1.0,1.0])
 
-res=minimize(f,p_initialize,method='CG')  
+res=minimize(f,p_initialize,method='Powell',tol=1.0e-8)  
 
 p=res.x
 p[0]=np.exp(p[0])
+
+print('Ecuacion de Arrhenius:')
+print(f"{p[0]:.3E} exp(-{p[1]:.3E}/(R T))")
+
 
 
     
