@@ -10,7 +10,7 @@ import matplotlib.pyplot as plt
 from scipy.linalg import solve_banded
 
 Ro=2.0e-2
-Ri=Ro-5.0e-3
+Ri=Ro-3.0e-3
 Cin=45.7
 Cout=0.0
 D=1.9e-10
