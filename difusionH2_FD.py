@@ -120,5 +120,8 @@ plt.xlabel('t [years]')
 plt.ylabel('total mass mol/m') 
 plt.legend(loc='upper right') 
 
-
+print('Perdidas por difusion en estado estacionario')
+print(f"{Hflux[n-1,-1]:.3E} mol.m^-1.s^-1")
+print('Perdidas acumuladas')
+print(f"{tot_flux_out:.3E} mol.m^-1 en el periodo de tiempo total de la simulacion")
 
