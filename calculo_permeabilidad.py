@@ -9,6 +9,7 @@ Ejemplo calculo permeabilidad y fugas
 """
 import numpy as np
 
+
 R=8.2057338e-5 #m3.atm.K-1.mol-1 https://byjus.com/physics/value-of-r-in-atm/#:~:text=The%20gas%20constant%20value%20is,1⋅K%5E%E2%88%921.
 P=1.1 #atm
 T=293.15 #https://www.ferrovial.com/es/recursos/condiciones-normalizadas-de-presion-y-temperatura/#:~:text=Las%20Condiciones%20Normalizadas%20de%20Presión%20y%20Temperatura%20(CNPT)%2C%20comúnmente,y%20consistentes%20en%20diferentes%20aplicaciones.
