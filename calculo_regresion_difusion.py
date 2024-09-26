@@ -8,6 +8,7 @@ Calculo dependencia de la temperatura del coeficiente de difusion
 """
 import numpy as np
 from scipy.optimize import minimize
+import matplotlib.pyplot as plt
 
 T=np.array([313.15,303.15])
 D=np.array([1.68e-10,1.40e-10])
