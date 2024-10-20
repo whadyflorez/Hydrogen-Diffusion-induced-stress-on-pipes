@@ -38,7 +38,7 @@ Hflux=np.zeros((n,nt+1))
 Table_tot_flux=np.zeros((nt,3))
 
 
-def Cbnd_in(t):
+def Cbnd_in(t): 
     if t<=5:
         y=45.7
     else:
