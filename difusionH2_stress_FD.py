@@ -16,7 +16,7 @@ Cout=0.0
 D=1.4e-10
 E=10e9 #Pa
 nu=0.3
-Omega=5.0e-3
+Omega=29.47e-6
 C0=0.0
 pin=3e5 #Pa https://www.ugc.edu.co/pages/juridica/documentos/institucionales/NTC_2505_Instalaciones_Suministro_De_Gas.pdf
 n=2000 #nodes
@@ -162,7 +162,8 @@ for i in range(0,nt+1,200):
     plt.plot(r*1e3,HDisp[:,i]*1e3,label=f't={i*dt:.1f} hours') 
 plt.xlabel('r [mm]')
 plt.ylabel('u [mm]') 
-plt.legend(loc='upper left', bbox_to_anchor=(1, 1))
+#plt.legend(loc='upper left', bbox_to_anchor=(1, 1))
+plt.legend(loc='lower right')
 
 #grafica sigma_r vs radio para cada tiempo
 plt.figure()
@@ -170,7 +171,8 @@ for i in range(0,nt+1,200):
     plt.plot(r*1e3,HStress_r[:,i],label=f't={i*dt:.1f} hours') 
 plt.xlabel('r [mm]')
 plt.ylabel('$\sigma_r$ [Pa]') 
-plt.legend(loc='upper left', bbox_to_anchor=(1, 1))
+#plt.legend(loc='upper left', bbox_to_anchor=(1, 1))
+plt.legend(loc='lower right')
 
 #grafica sigma_t vs radio para cada tiempo
 plt.figure()
@@ -180,7 +182,8 @@ plt.xlabel('r [mm]')
 plt.ylabel(r'$\sigma_\theta$ [Pa]')  
 #https://stackoverflow.com/questions/10370760/matplotlib-axis-label-theta-does-not-work-theta-does
 #If you specify that the string is raw text (a r before the quotation mark), it works
-plt.legend(loc='upper left', bbox_to_anchor=(1, 1))
+#plt.legend(loc='upper left', bbox_to_anchor=(1, 1))
+plt.legend(loc='lower right')
 
 #grafica epsilon_r vs radio para cada tiempo
 plt.figure()
