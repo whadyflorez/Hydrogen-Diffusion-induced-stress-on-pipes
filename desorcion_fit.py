@@ -15,19 +15,19 @@ from scipy.interpolate import CubicSpline
 Ro=2.0e-2
 Ri=Ro-5.0e-3
 Cout=0.0
-D=1.9e-10
-C0=400.0
+D=2.0e-10
+C0=33.87
 n=100 #nodes
 dr=(Ro-Ri)/(n-1)
-#dt=0.083
 #S=31536000 # seconds in a year
 #S=3600*24*30 #seconds per month
-S=3600*24 #seconds per day
-t_end=10.0
+#S=3600*24 #seconds per day
+S=60 #seconds per minute
+t_end=120.0
 #nt=int(t_end/dt)
 nt=300
 dt=t_end/(nt-1)
-ndata=25
+ndata=16 #data
 
 
 Cold=np.zeros(n)
@@ -42,17 +42,15 @@ Hflux=np.zeros((n,nt+1))
 Table_tot_flux=np.zeros((nt,3))
 Hfluxout=np.zeros(nt)
 
-desor_data=np.zeros((ndata,ndata))
-desor_data[:,0]=np.linspace(0,t_end,ndata)
-tot_flux_interp=np.zeros(ndata)
 
+desor_data = np.loadtxt("data.csv", delimiter=",") 
+desor_data[:,1]*=np.pi*(Ro**2-Ri**2)
+ndata=desor_data.shape[0]
+tot_flux_interp=np.zeros(ndata)
 
 def Cbnd_in(t): 
     y=0.0
     return y
-
-
-
 
 def desor_model(D):
 
@@ -86,7 +84,7 @@ def desor_model(D):
     tot_flux_in=0
     tot_flux_out=0
     Hfluxout=Hflux[0,:]+Hflux[n-1,:]
-    tot_acum=0.0
+    tot_acum=C0*np.pi*(Ro**2-Ri**2)
     
     for i in range(nt):
         tot_flux_in+=0.5*(Hflux[0,i]+Hflux[0,i+1])*S*dt
@@ -99,85 +97,25 @@ def desor_model(D):
         spl=CubicSpline(t[1:],Table_tot_flux[:,1])
         tot_flux_interp[i]=spl(desor_data[i,0])
     
-    # #comprobacion de la acumulacion final
-    # C_acum=0
-    # for i in range(n-1):
-    #     C_acum+=0.5*2*np.pi*(r[i]*C[i]+r[i+1]*C[i+1])*dr
-            
         
-    
-    # #concentracions vs radio    
-    # plt.figure()
-    # for i in range(0,nt+1,20):
-    #     plt.plot(r*1e3,H[:,i],label=f't={i*dt:.1f} years') 
-    # plt.xlabel('r [mm]')
-    # plt.ylabel('C') 
-    # plt.legend(loc='upper left', bbox_to_anchor=(1, 1))
-        
-    # #concentraciones vs tiempo
-    # plt.figure()
-    # for i in range(0,n,10):
-    #     plt.plot(t[:],H[i,:],label=f'r={i*dr*1e3:.1f} mm') 
-    # plt.xlabel('t [years]')
-    # plt.ylabel('C')
-    # plt.legend(loc='upper left', bbox_to_anchor=(1, 1))
-    
-    # #flujos vs radio
-    # plt.figure()
-    # for i in range(1,nt+1,1):
-    #     plt.plot(r*1e3,Hflux[:,i],label=f't={i*dt:.1f} years') 
-    # plt.xlabel('r [mm]')
-    # plt.ylabel('Flux m^3/s') 
-    # plt.legend(loc='upper left', bbox_to_anchor=(1, 1))
-    
-    # #flujos interno y externo
-    # plt.figure()
-    # plt.plot(t,Hflux[0,:],label=f'inner radius flow') 
-    # plt.plot(t,Hflux[n-1,:],label=f'outer radius flow') 
-    # plt.xlabel('t [years]')
-    # plt.ylabel('Flux m^3/s') 
-    # plt.legend(loc='upper right')
-    
-    # #flujos acumulados
-    # plt.figure()
-    # plt.plot(t[1:],Table_tot_flux[:,0],label=f'inner radius total mass input') 
-    # plt.plot(t[1:],Table_tot_flux[:,1],label=f'outer radius total mass output') 
-    # plt.plot(t[1:],Table_tot_flux[:,2],label=f'Accumulated moles in pipe') 
-    # plt.xlabel('t [years]')
-    # plt.ylabel('total mass mol/m') 
-    # plt.legend(loc='upper right') 
-    
-    # #curva de desorpcion
-    # plt.figure()
-    # plt.plot(t[1:],Table_tot_flux[:,2],label=f'Accumulated moles in pipe') 
-    # plt.xlabel('t [years]')
-    # plt.ylabel('total mass mol/m') 
-    # plt.legend(loc='upper right') 
-    
-    # #ejemplo de calculo de perdidas por difusion estacionaria
-    # Perdidas=Hflux[n-1,-1]*22.4*3600*24*365 #moles por año por metro
-    
     return [t[1:],Table_tot_flux[:,2],tot_flux_interp]
 
-#data example
-#desor_data=desor_model(2.50e-10)
-#desor_data_mod=desor_data[1]+0.01*np.random.uniform(-1,1,nt)
-
-
-desor_data[:,1]=desor_model(2.50e-10)[2]
 
 def E2loss(D):
     y=desor_model(D)[2]-desor_data[:,1]
     y=np.dot(y,y)
     return y
 
-solmin=minimize_scalar(E2loss,bounds=(1.0e-10,3e-10),tol=1.0e-10)
-print('D fitted=',solmin.x)
+solmin=minimize_scalar(E2loss,bounds=(1.0e-10,1e-7),tol=1e-6)
+D_fit=solmin.x
+print('D fitted=',D_fit)
 print('Optimization result=',solmin.message)
 
 
+t_model=desor_model(D_fit)[0]
+C_model=desor_model(D_fit)[1]
 plt.figure()
-plt.plot(desor_data[:,0],desor_data[:,1],'--')
+plt.plot(t_model,C_model,'--')
 plt.plot(desor_data[:,0],desor_data[:,1],'o',alpha=0.5)
 
 

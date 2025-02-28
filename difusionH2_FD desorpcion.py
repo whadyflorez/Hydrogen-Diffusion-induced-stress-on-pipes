@@ -73,7 +73,7 @@ for j in range(nt):
 tot_flux_in=0
 tot_flux_out=0
 Hfluxout=Hflux[0,:]+Hflux[n-1,:]
-tot_acum=0.0
+tot_acum=C0*np.pi*(Ro**2-Ri**2)
 
 for i in range(nt):
     tot_flux_in+=0.5*(Hflux[0,i]+Hflux[0,i+1])*S*dt
