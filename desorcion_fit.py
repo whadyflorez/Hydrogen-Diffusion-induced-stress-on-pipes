@@ -9,6 +9,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from scipy.linalg import solve_banded
 from scipy.optimize import minimize_scalar
+from scipy.interpolate import CubicSpline
 
 
 Ro=2.0e-2
@@ -26,6 +27,7 @@ t_end=10.0
 #nt=int(t_end/dt)
 nt=300
 dt=t_end/(nt-1)
+ndata=25
 
 
 Cold=np.zeros(n)
@@ -39,6 +41,10 @@ Cflux=np.zeros(n)
 Hflux=np.zeros((n,nt+1))
 Table_tot_flux=np.zeros((nt,3))
 Hfluxout=np.zeros(nt)
+
+desor_data=np.zeros((ndata,ndata))
+desor_data[:,0]=np.linspace(0,t_end,ndata)
+tot_flux_interp=np.zeros(ndata)
 
 
 def Cbnd_in(t): 
@@ -88,6 +94,10 @@ def desor_model(D):
         tot_acum+=-0.5*(Hfluxout[i]+Hfluxout[i+1])*S*dt #el - indica salida o desorpcion
     #    tot_acum=-(tot_flux_in+tot_flux_out) #el - indica salida o desorpcion
         Table_tot_flux[i,0:3]=[tot_flux_in,tot_flux_out,tot_acum]
+        
+    for i in range(ndata):
+        spl=CubicSpline(t[1:],Table_tot_flux[:,1])
+        tot_flux_interp[i]=spl(desor_data[i,0])
     
     # #comprobacion de la acumulacion final
     # C_acum=0
@@ -147,15 +157,17 @@ def desor_model(D):
     # #ejemplo de calculo de perdidas por difusion estacionaria
     # Perdidas=Hflux[n-1,-1]*22.4*3600*24*365 #moles por año por metro
     
-    return [t[1:],Table_tot_flux[:,2]]
+    return [t[1:],Table_tot_flux[:,2],tot_flux_interp]
 
 #data example
-desor_data=desor_model(2.50e-10)
-desor_data_mod=desor_data[1]+0.01*np.random.uniform(-1,1,nt)
+#desor_data=desor_model(2.50e-10)
+#desor_data_mod=desor_data[1]+0.01*np.random.uniform(-1,1,nt)
 
+
+desor_data[:,1]=desor_model(2.50e-10)[2]
 
 def E2loss(D):
-    y=desor_model(D)[1]-desor_data_mod[1]
+    y=desor_model(D)[2]-desor_data[:,1]
     y=np.dot(y,y)
     return y
 
@@ -165,8 +177,8 @@ print('Optimization result=',solmin.message)
 
 
 plt.figure()
-plt.plot(desor_data[0],desor_data[1],'--')
-plt.plot(desor_data[0],desor_data_mod,'o',alpha=0.5)
+plt.plot(desor_data[:,0],desor_data[:,1],'--')
+plt.plot(desor_data[:,0],desor_data[:,1],'o',alpha=0.5)
 
 
     
