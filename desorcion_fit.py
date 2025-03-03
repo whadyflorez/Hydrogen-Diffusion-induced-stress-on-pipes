@@ -8,7 +8,7 @@ Diffusion cylinder implicit FD constant diffusivity
 import numpy as np
 import matplotlib.pyplot as plt
 from scipy.linalg import solve_banded
-from scipy.optimize import minimize_scalar
+from scipy.optimize import minimize_scalar,brent,golden
 from scipy.interpolate import CubicSpline
 
 
@@ -23,7 +23,7 @@ dr=(Ro-Ri)/(n-1)
 #S=3600*24*30 #seconds per month
 #S=3600*24 #seconds per day
 S=60 #seconds per minute
-t_end=120.0
+t_end=20.0
 #nt=int(t_end/dt)
 nt=300
 dt=t_end/(nt-1)
@@ -106,7 +106,7 @@ def E2loss(D):
     y=np.dot(y,y)
     return y
 
-solmin=minimize_scalar(E2loss,bounds=(1.0e-10,1e-7),tol=1e-6)
+solmin=minimize_scalar(E2loss,bounds=(1.0e-15,1e-7))
 D_fit=solmin.x
 print('D fitted=',D_fit)
 print('Optimization result=',solmin.message)
