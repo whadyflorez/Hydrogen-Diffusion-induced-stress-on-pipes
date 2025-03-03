@@ -106,7 +106,7 @@ def E2loss(D):
     y=np.dot(y,y)
     return y
 
-solmin=minimize_scalar(E2loss,bounds=(1e-12,1e-6))
+solmin=minimize_scalar(E2loss,bounds=(1e-11,1e-7))
 D_fit=solmin.x
 print('D fitted=',D_fit)
 print('Optimization result=',solmin.message)
