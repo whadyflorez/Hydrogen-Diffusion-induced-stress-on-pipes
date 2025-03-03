@@ -16,7 +16,7 @@ Ro=2.0e-2
 Ri=Ro-5.0e-3
 Cout=0.0
 D=2.0e-10
-C0=33.87
+C0=0.320034154  #concet iniciall mol/m3
 n=100 #nodes
 dr=(Ro-Ri)/(n-1)
 #S=31536000 # seconds in a year
@@ -106,7 +106,7 @@ def E2loss(D):
     y=np.dot(y,y)
     return y
 
-solmin=minimize_scalar(E2loss,bounds=(1.0e-10,1e-7),tol=1e-6)
+solmin=minimize_scalar(E2loss,bounds=(1e-12,1e-6))
 D_fit=solmin.x
 print('D fitted=',D_fit)
 print('Optimization result=',solmin.message)
