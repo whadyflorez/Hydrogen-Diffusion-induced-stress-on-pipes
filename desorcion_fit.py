@@ -118,6 +118,8 @@ plt.figure()
 plt.plot(t_model,C_model,'--')
 plt.plot(desor_data[:,0],desor_data[:,1],'o',alpha=0.5)
 
+y=desor_model(1.0e-11)#ejemplo valores teoricos
+
 
     
 
