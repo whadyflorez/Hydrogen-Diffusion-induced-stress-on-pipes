@@ -8,6 +8,7 @@ stresses in internal spherical cavity
 import numpy as np
 import matplotlib.pyplot as plt
 from scipy.linalg import solve_banded
+import matplotlib.ticker as ticker
 
 Ro=2.0e-2
 Ri=Ro-3.0e-3
@@ -73,10 +74,11 @@ for j in range(nt):
     rhs[0]=Cin
     rhs[n-1]=Cout
     C=solve_banded((1,1),A,rhs)
+    
     for i in range(1,n-1): # post processing de flujos
-        Cflux[i]=-2.0*np.pi*r[i]*D*(C[i+1]-C[i-1])/(2*dr)
-    Cflux[0]=-2.0*np.pi*r[0]*D*(-3*C[0]+4*C[1]-C[2])/(2*dr)  
-    Cflux[n-1]=-2.0*np.pi*r[n-1]*D*(3*C[n-1]-4*C[n-2]+C[n-3])/(2*dr)
+        Cflux[i]=-D*(C[i+1]-C[i-1])/(2*dr)
+    Cflux[0]=D*(-3*C[0]+4*C[1]-C[2])/(2*dr)  
+    Cflux[n-1]=-D*(3*C[n-1]-4*C[n-2]+C[n-3])/(2*dr)
     H[:,j+1]=C
     Hflux[:,j+1]=Cflux
     Cold[:]=C
@@ -84,7 +86,7 @@ for j in range(nt):
     Vol_cavity=(4.0/3.0)*np.pi*R_cavity**3
     pressure_cavity=mol_cavity*Rg*T_ref/Vol_cavity
     sigmar_cavity=pressure_cavity
-    deltaR_cavity=R_cavity*pressure_cavity*(1.0-nu)/E
+    deltaR_cavity=R_cavity*pressure_cavity*(1.0-nu)/(2*E)
     R_cavity+=deltaR_cavity
     H_mol_cavity[j+1]=mol_cavity
     H_pressure_cavity[j+1]=pressure_cavity
@@ -92,11 +94,11 @@ for j in range(nt):
     H_stressr_cavity[j+1]=sigmar_cavity
     
 #post processing de flujos totales    
-tot_flux_in=0
-tot_flux_out=0
-for i in range(nt):
-    tot_flux_in+=0.5*(Hflux[0,i]+Hflux[0,i+1])*S*dt
-    tot_flux_out+=0.5*(Hflux[n-1,i]+Hflux[n-1,i+1])*S*dt
+# tot_flux_in=0
+# tot_flux_out=0
+# for i in range(nt):
+#     tot_flux_in+=2*0.5*(Hflux[0,i]+Hflux[0,i+1])*S*dt
+#     tot_flux_out+=0.5*(Hflux[n-1,i]+Hflux[n-1,i+1])*S*dt
    
 #grafica Concentracion vs r para cada tiempo    
 plt.figure()
@@ -142,6 +144,13 @@ plt.figure()
 plt.plot(t,H_r_cavity*1e3) 
 plt.xlabel('t ')
 plt.ylabel('$r_{cavity}$ (mm)') 
+# Formatear el eje Y en notación científica
+ax = plt.gca()  # Obtener el eje actual
+formatter = ticker.ScalarFormatter(useMathText=True)
+formatter.set_scientific(True)
+formatter.set_powerlimits((-2, 2))  # Controla cuándo activar la notación científica
+ax.yaxis.set_major_formatter(formatter)
 
+plt.show()
 
 
