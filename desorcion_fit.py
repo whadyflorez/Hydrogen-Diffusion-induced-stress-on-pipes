@@ -29,6 +29,8 @@ nt=300
 dt=t_end/(nt-1)
 ndata=16 #data
 
+Dh2_teorico=1.213e-10
+Dch4_teorico=5.7e-12
 
 Cold=np.zeros(n)
 C=np.zeros(n)
@@ -43,7 +45,7 @@ Table_tot_flux=np.zeros((nt,3))
 Hfluxout=np.zeros(nt)
 
 
-desor_data = np.loadtxt("data.csv", delimiter=",") 
+desor_data = np.loadtxt("NB2.csv", delimiter=",") 
 desor_data[:,1]*=np.pi*(Ro**2-Ri**2)
 ndata=desor_data.shape[0]
 tot_flux_interp=np.zeros(ndata)
@@ -94,7 +96,7 @@ def desor_model(D):
         Table_tot_flux[i,0:3]=[tot_flux_in,tot_flux_out,tot_acum]
         
     for i in range(ndata):
-        spl=CubicSpline(t[1:],Table_tot_flux[:,1])
+        spl=CubicSpline(t[1:],Table_tot_flux[:,2])
         tot_flux_interp[i]=spl(desor_data[i,0])
     
         
@@ -106,10 +108,13 @@ def E2loss(D):
     y=np.dot(y,y)
     return y
 
-solmin=minimize_scalar(E2loss,bounds=(1e-11,1e-7))
+solmin=minimize_scalar(E2loss,bounds=(1e-11,1e-7),tol=1.0e-16)
 D_fit=solmin.x
 print('D fitted=',D_fit)
 print('Optimization result=',solmin.message)
+
+Fcorr_h2=Dh2_teorico/D_fit
+Fcorr_ch4=Dch4_teorico/D_fit
 
 
 t_model=desor_model(D_fit)[0]
@@ -118,8 +123,9 @@ plt.figure()
 plt.plot(t_model,C_model,'--')
 plt.plot(desor_data[:,0],desor_data[:,1],'o',alpha=0.5)
 
-y=desor_model(1.0e-11)#ejemplo valores teoricos
 
+
+#y=desor_model(1.0e-11)#ejemplo valores teoricos
 
     
 
