@@ -30,9 +30,9 @@ n=2000 #nodes
 dr=(Ro-Ri)/(n-1)
 #dt=0.083
 S=31536000 # seconds in a year
-t_end=50.0
+t_end=100.0
 #nt=int(t_end/dt)
-nt=1000
+nt=10000
 dt=t_end/(nt-1)
 
 
