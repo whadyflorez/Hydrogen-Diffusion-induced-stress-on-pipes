@@ -45,7 +45,7 @@ Table_tot_flux=np.zeros((nt,3))
 Hfluxout=np.zeros(nt)
 
 
-desor_data = np.loadtxt("UB1.csv", delimiter=",") 
+desor_data = np.loadtxt("NB2.csv", delimiter=",") 
 desor_data[:,1]*=np.pi*(Ro**2-Ri**2)
 ndata=desor_data.shape[0]
 tot_flux_interp=np.zeros(ndata)
@@ -108,7 +108,7 @@ def E2loss(D):
     y=np.dot(y,y)
     return y
 
-solmin=minimize_scalar(E2loss,bounds=(1e-11,1e-7),tol=1.0e-20)
+solmin=minimize_scalar(E2loss,bounds=(1e-11,1e-6),tol=1.0e-20)
 D_fit=solmin.x
 print('D fitted=',D_fit)
 print('Optimization result=',solmin.message)
