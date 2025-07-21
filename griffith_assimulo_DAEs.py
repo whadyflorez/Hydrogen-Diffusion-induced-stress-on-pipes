@@ -18,6 +18,7 @@ ro_pore=1.0e-3
 a=0.2476*1e-1 #H2 m**6*Pa/mol**2
 b=0.02661*1e-3 #H2 m**3/mol
 E=0.565e9 #elastic modulus HDPE Pa
+Gc=10.0 #Grffith critical fracture energy
 nu=0.4  #poisson ration HDPE
 k_trap=1.0e-4 # papers bathia farid porosity epsilo**2 epsilon=0.01 hdpe
 Sc_t=3600.0*24 #time scale 
@@ -46,7 +47,8 @@ def residual(t, y, ydot):
     c=n/V
     res[0]=ydot[0]-(As*n_in-S1*Dif*(c-Ci)-S2*Dif*(c-Co))*Sc_t
     res[1]=p*V-n*Ru*T           
-    res[2]=r-ro_pore*(1.0+(1.0+nu)*p/E)  
+    res[2]=4.0*(1.0-2.0*nu)*p*ydot[1]*r**3/3.0+\
+    (2.0*(1.0-2.0*nu)*p**2*r**2-8.0*E*Gc*r)*ydot[2]  
     return res
 
 n_ini=0.0
@@ -66,7 +68,7 @@ yd0 = np.array([dn_dt_0, 0.0, 0.0])
 
 problem = Implicit_Problem(residual, y0, yd0, t0=0.0)
 solver = IDA(problem)
-solver.algvar = [1, 0, 0]
+solver.algvar = [1, 0, 1]
 solver.make_consistent('IDA_YA_YDP_INIT')
 solver.inith = 1e-10  # crítico para DAE rígidas con y0=0
 
