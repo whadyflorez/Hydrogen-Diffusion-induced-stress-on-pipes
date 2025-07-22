@@ -21,18 +21,19 @@ E=0.565e9 #elastic modulus HDPE Pa
 Gc=10.0 #Grffith critical fracture energy
 nu=0.4  #poisson ration HDPE
 k_trap=1.0e-4 # papers bathia farid porosity epsilo**2 epsilon=0.01 hdpe
+Deff=Dif*k_trap #modelos de difusividad efectiva
 Sc_t=3600.0*24 #time scale 
 t_end=30*12*10
 n_step=1000
 
 #flux through pipe wall
 def flux_pipe(r):
-    n=(Ci-Co)/((r/Dif)*np.log(ro/ri))*k_trap
+    n=(Ci-Co)/((r/Deff)*np.log(ro/ri))
     return n
 
 #shape factor for the defect
 def SF(D,z):
-    s=2*pi*D/(1-D/(4*z))*k_trap  #k_trap simula el atrapamiento de H2
+    s=2*pi*D/(1-D/(4*z))  #k_trap simula el atrapamiento de H2
     return s
 
 
@@ -45,10 +46,12 @@ def residual(t, y, ydot):
     V=(4.0/3.0)*pi*r**3
     As=4*pi*r**2
     c=n/V
-    res[0]=ydot[0]-(As*n_in-S1*Dif*(c-Ci)-S2*Dif*(c-Co))*Sc_t
+    res[0]=ydot[0]-(As*n_in-S1*Deff*(c-Ci)-S2*Deff*(c-Co))*Sc_t
     res[1]=p*V-n*Ru*T           
+    alpha=1.0
+    Gc_dynamic = Gc * (1 + alpha * (r/ro_pore - 1))
     res[2]=4.0*(1.0-2.0*nu)*p*ydot[1]*r**3/3.0+\
-    (2.0*(1.0-2.0*nu)*p**2*r**2-8.0*E*Gc*r)*ydot[2]  
+    (2.0*(1.0-2.0*nu)*p**2*r**2-8.0*E*Gc_dynamic*r)*ydot[2]  
     return res
 
 n_ini=0.0
@@ -63,7 +66,7 @@ As = 4*pi*ro_pore**2
 
 y0=np.array([n_ini,p_ini,ro_pore])
 
-dn_dt_0 = (As*n_in - S1*Dif*(c0 - Ci) - S2*Dif*(c0 - Co)) * Sc_t
+dn_dt_0 = (As*n_in - S1*Deff*(c0 - Ci) - S2*Deff*(c0 - Co)) * Sc_t
 yd0 = np.array([dn_dt_0, 0.0, 0.0])
 
 problem = Implicit_Problem(residual, y0, yd0, t0=0.0)
