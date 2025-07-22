@@ -47,7 +47,8 @@ def residual(t, y, ydot):
     As=4*pi*r**2
     c=n/V
     res[0]=ydot[0]-(As*n_in-S1*Deff*(c-Ci)-S2*Deff*(c-Co))*Sc_t
-    res[1]=p*V-n*Ru*T           
+#    res[1]=p*V-n*Ru*T           
+    res[1]=p-n*Ru*T/(V-n*b)+a*n**2/V**2 #Van der walls         
     alpha=1.0
     Gc_dynamic = Gc * (1 + alpha * (r/ro_pore - 1))
     res[2]=4.0*(1.0-2.0*nu)*p*ydot[1]*r**3/3.0+\

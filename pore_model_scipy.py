@@ -12,14 +12,16 @@ ro=12.3e-3
 Ru=8.314  #m3⋅Pa⋅K−1⋅mol−1
 T=300.0 
 r_pos=11.0e-3
-ro_pore=1.0e-3
+ro_pore=1.0e-6
 a=0.2476*1e-1 #H2 m**6*Pa/mol**2
 b=0.02661*1e-3 #H2 m**3/mol
 E=0.565e9 #elastic modulus HDPE Pa
 nu=0.4  #poisson ration HDPE
 k_trap=1.0e-4 # papers bathia farid porosity epsilo**2 epsilon=0.01 hdpe
-Sc_t=3600*24 #time scale 
-t_end=30*12*10
+#Sc_t=3600*24 #time scale 
+#t_end=30*12*10
+Sc_t=60.0
+t_end=10
 n_step=1000
 
 #flux through pipe wall
