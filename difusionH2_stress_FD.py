@@ -120,7 +120,11 @@ for j in range(nt+1):
     HStress_t[:,j]=sigma_t
     HStrain_r[:,j]=epsi_r
     HStrain_t[:,j]=epsi_t
- 
+
+#calculo del esfuerzo maximo tangencial durante toda la historia del proceso
+indice = np.argmax(np.abs(HStress_t))
+posicion = np.unravel_index(indice, HStress_t.shape)
+sigma_t_max=np.abs(HStress_t[posicion])
     
 #grafica Concentracion vs r para cada tiempo    
 plt.figure()
